@@ -1,0 +1,83 @@
+import random
+import time
+import config
+from entityStorageClass import rue, entityTypes
+from movementClass import inputListener, startTimerInThread
+from roomGen import generateRoom, roomGenerator
+
+
+def randSleep(a, b):  # randomized sleep function
+    if not config.devMode:
+        time.sleep(float(random.randint(a, b) / 100))
+
+def playerDead(deathBy):  # manages the player's death and ends the game
+    print(f"you died to {deathBy}")
+    print(f"you can always try again. \ni gave you free will, although\nit's probably in your best interest to do so,\n"
+          f"better to suffer while you're still alive,\nand not for eternity after.")
+    exit("dead")  # TODO: will be replaced later with replayability feature and entity jumpscares
+
+
+def mainGameplayLoop(): # active while you are not in a saferoom and alive
+    config.gameOn = True
+    roomGenerator()  # generates the first three rooms
+    config.currentRoomType = config.nextThreeRooms.pop(0)  # gens the first room type and removes it from next three rooms
+    config.nextThreeRooms.extend(list(generateRoom(1)))  # gens another room to compensate for the first room's removal
+    inputListener()  # starts input listener
+    startTimerInThread()  # starts timer
+    while config.gameOn: #
+        pass  # TODO: implement entity spawning
+
+
+print("heres the tutorial")
+randSleep(10, 100)
+print("\n \n \n \n \n \n")
+print("controls: \ncrouch: c\nforward: w\nleft: a\nback: s\nright: d\nrun: r\ncheck information: info")
+randSleep(10, 100)
+print("walking in a direction makes you look in that direction")
+randSleep(10, 100)
+print("type the letter twice if you want to move in a direction without looking in it")
+randSleep(10, 100)
+print("walking forward has a dedicated key for it, which is run")
+randSleep(10, 100)
+print("running has the same speed as walking forward")
+randSleep(10, 100)
+print("you must be in the middle of the room to move on to the next one")
+randSleep(10, 100)
+print("you can't go to passed rooms")
+randSleep(10, 100)
+randSleep(10, 100)
+print("")
+print("entities:")
+randSleep(10, 100)
+print("1. tosleepforgood: stay down, don't move a muscle.")
+print("2. soulfulgratitude: the water withers the soul, stay still and it won't sense you.")
+print("3. jabłoń: run onwards, you'll find a spot.")
+print("4. eyeforaneye: don't stare.")
+print("5. STAREDOWN: do stare.")
+print("6. peerpressure: move to the side, out of its way.")
+print("7. ALWAYSSUFFER: good luck.")
+randSleep(10, 100)
+print("optional entities:")
+print("8. lefttowander: watch your back from time to time, it's scared of light")
+rueOn = bool(input("do you want rue on?"))  # sets entity number 8 (rue) to true or false depending on the player
+if rueOn:
+    entityTypes.append(rue)
+randSleep(10, 100)
+mainInput = str(input("press enter to start the game"))
+print("starting game. . .")
+# initial game setup
+mainGameplayLoop()
+
+# TODO LIST: inputHandler to handle and validate inputs received: DONE
+# TODO LIST: finish room generation system: DONE
+# TODO LIST: implement currentRoom and currentRoomType: DONE
+# TODO LIST: implement entity spawning system: NEEDS SPAWN CONDITION
+# TODO LIST: kill all entities when saferoom is entered (they can still kill the player): DELAYED FK THAT
+# TODO LIST: finish controls (real men play without look controls): done, needs prevRoom implementation
+# TODO LIST: implement config class (90 lines of variables is making me cringe): config file created, not class tho
+# TODO LIST: put in more files (i'm going back to rust) AND FIX THE CIRCULAR IMPORTS: in progress
+# TODO LIST: implement inventory and rue (ily rue)
+# TODO LIST: comment code better (typing benchmark go brrr)
+# TODO LIST: playtest (we don't want to be like cs2 on release do we)
+# TODO LIST: ability to go back to previous rooms (prevRoom)
+# TODO LIST: kill myself
