@@ -1,25 +1,25 @@
-import random
-import time
+import asyncio
+import threading
 import config
-from entityStorageClass import rue, entityTypes
-from movementClass import inputListener, startTimerInThread
-from roomGen import generateRoom, roomGenerator
+from config import randSleep
+timerTask = None  # stores the timer task
 
+def startTimerInThread():
+    from movementClass import timer
+    asyncio.run(timer())
 
-def randSleep(a, b):  # randomized sleep function
-    if not config.devMode:
-        time.sleep(float(random.randint(a, b) / 100))
-
-def playerDead(deathBy):  # manages the player's death and ends the game
-    print(f"you died to {deathBy}")
-    print(f"you can always try again. \ni gave you free will, although\nit's probably in your best interest to do so,\n"
-          f"better to suffer while you're still alive,\nand not for eternity after.")
-    exit("dead")  # TODO: will be replaced later with replayability feature and entity jumpscares
-
+def resetTimer():
+    global timerTask
+    if timerTask is not None and timerTask.is_alive():
+        # start new thread
+        timerTask = threading.Thread(target=startTimerInThread, daemon=True)
 
 def mainGameplayLoop(): # active while you are not in a saferoom and alive
+    from room import roomGenerator
+    from room import generateRoom
+    from movementClass import inputListener
     config.gameOn = True
-    roomGenerator()  # generates the first three rooms
+    roomGenerator()  # generate the first three rooms
     config.currentRoomType = config.nextThreeRooms.pop(0)  # gens the first room type and removes it from next three rooms
     config.nextThreeRooms.extend(list(generateRoom(1)))  # gens another room to compensate for the first room's removal
     inputListener()  # starts input listener
@@ -61,6 +61,7 @@ print("optional entities:")
 print("8. lefttowander: watch your back from time to time, it's scared of light")
 rueOn = bool(input("do you want rue on?"))  # sets entity number 8 (rue) to true or false depending on the player
 if rueOn:
+    from entity import entityTypes, rue
     entityTypes.append(rue)
 randSleep(10, 100)
 mainInput = str(input("press enter to start the game"))
