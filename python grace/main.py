@@ -1,31 +1,29 @@
+# the file you are not supposed to import anything from
+# i hate circular imports
+import aioconsole
 import asyncio
-import threading
 import config
 from config import randSleep
-timerTask = None  # stores the timer task
+
 
 def startTimerInThread():
-    from movementClass import timer
+    from movement import timer
     asyncio.run(timer())
 
-def resetTimer():
-    global timerTask
-    if timerTask is not None and timerTask.is_alive():
-        # start new thread
-        timerTask = threading.Thread(target=startTimerInThread, daemon=True)
 
 def mainGameplayLoop(): # active while you are not in a saferoom and alive
     from room import roomGenerator
     from room import generateRoom
-    from movementClass import inputListener
+    from movement import inputListener
+    config.roomsRemaining = 15 + min(40, config.saferoom)
     config.gameOn = True
     roomGenerator()  # generate the first three rooms
     config.currentRoomType = config.nextThreeRooms.pop(0)  # gens the first room type and removes it from next three rooms
     config.nextThreeRooms.extend(list(generateRoom(1)))  # gens another room to compensate for the first room's removal
-    inputListener()  # starts input listener
+    asyncio.run(inputListener())  # starts input listener
     startTimerInThread()  # starts timer
     while config.gameOn: #
-        pass  # TODO: implement entity spawning
+        asyncio.run(config.setMainInput(aioconsole.ainput("")))  # TODO: implement entity spawning
 
 
 print("heres the tutorial")
@@ -74,11 +72,12 @@ mainGameplayLoop()
 # TODO LIST: implement currentRoom and currentRoomType: DONE
 # TODO LIST: implement entity spawning system: NEEDS SPAWN CONDITION
 # TODO LIST: kill all entities when saferoom is entered (they can still kill the player): DELAYED FK THAT
-# TODO LIST: finish controls (real men play without look controls): done, needs prevRoom implementation
-# TODO LIST: implement config class (90 lines of variables is making me cringe): config file created, not class tho
-# TODO LIST: put in more files (i'm going back to rust) AND FIX THE CIRCULAR IMPORTS: in progress
+# TODO LIST: finish controls: done but real men play without look controls
+# TODO LIST: put in more files AND FIX THE CIRCULAR IMPORTS: done
 # TODO LIST: implement inventory and rue (ily rue)
 # TODO LIST: comment code better (typing benchmark go brrr)
-# TODO LIST: playtest (we don't want to be like cs2 on release do we)
+# TODO LIST: playtest
 # TODO LIST: ability to go back to previous rooms (prevRoom)
-# TODO LIST: kill myself
+# TODO LIST: kill myself: in preparation
+
+# meow

@@ -2,6 +2,8 @@
 # good thing this class contains only functions omc i hate circular imports i want to kill >
 # > whoever invented them
 import asyncio
+import threading
+
 import config
 
 
@@ -122,18 +124,26 @@ directionDictionary = {
 
 
 async def inputListener():
-    from config import gameOn
+    print("movement inputListener activated")
+    from config import gameOn, mainInputCondition
     from entity import sorrowSpawned
     while gameOn and not sorrowSpawned:
-        async with config.mainInputCondition:
-            await config.mainInputCondition.wait()  # wait for input to change
-            inputHandler()
+        print("movement inputlistener goodCheck")
+        async with mainInputCondition:
+            print("movement inputListener async with mainInput")
+            print(mainInputCondition.locked())
+            await mainInputCondition.wait()  # wait for input to change
+            print("mainInputCondition awaited")
+            await inputHandler()
+            print("inputHandler awaited")
 
-def inputHandler():  # handles game input and redirects to the adequate function
+async def inputHandler():  # handles game input and redirects to the adequate function
+    print("inputHandler")
     import config
     if config.mainInput == "w":
         if not config.crouching:
             forward()
+            print("MOVED FORWARD YAY")
     elif config.mainInput == "a":
         if not config.crouching:
             left()
@@ -169,7 +179,7 @@ def inputHandler():  # handles game input and redirects to the adequate function
 
 
 def saferoomEnter():
-    from main import resetTimer, mainGameplayLoop
+    from main import mainGameplayLoop
     config.timeRemaining = config.SFTime
     config.inSaferoom = True
     config.currentRoom = 0
@@ -182,3 +192,13 @@ def saferoomEnter():
     print(f"you have entered saferoom number {config.saferoom}, you are at {config.roomsPassed} rooms passed, press enter to move on")
     config.mainInput = input("")
     mainGameplayLoop()  # restarts main gameplay loop
+
+timerTask = None  # stores the timer task
+def resetTimer():
+    from main import startTimerInThread
+    global timerTask
+    if timerTask is not None and timerTask.is_alive():
+        # start new thread
+        timerTask = threading.Thread(target=startTimerInThread, daemon=True)
+
+# meow

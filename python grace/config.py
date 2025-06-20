@@ -1,5 +1,5 @@
 # configuration file
-# stores essential variables
+# stores things that don't need to be imported from other files
 import asyncio
 import random
 import time
@@ -35,13 +35,16 @@ slugfishOn = False  # dictates whether the entity slugfish is activated
 goatmanOn = False  # dictates whether the entity goatman is activated
 carnationOn = False  # dictates whether the entity carnation is activated
 mainInput = None  # manages the player chat input
-mainInputCondition = asyncio.Condition()
+mainInputCondition = asyncio.Condition(mainInput)
 
 async def setMainInput(recInput):
     global mainInput
-    async with mainInputCondition:
-        mainInput = recInput
-        mainInputCondition.notify_all()  # wake up
+    newInputAvailable = False  # whether if new input available
+    print(mainInputCondition.locked())
+    async with mainInputCondition: #
+        mainInput = recInput # set recInput (receivedInput) to mainInput
+        mainInputCondition.notify_all()  # wake up the threads
+
 
 def randSleep(a, b):  # randomized sleep function
     if not devMode:
@@ -50,6 +53,8 @@ def randSleep(a, b):  # randomized sleep function
 
 def playerDead(deathBy):  # manages the player's death and ends the game
     print(f"you died to {deathBy}")
-    print(f"you can always try again. \ni gave you free will, although\nit's probably in your best interest to do so,\n"
-          f"better to suffer while you're still alive,\nand not for eternity after.")
+    print(f"you can always try again. \nit's probably in your best interest to do so,\n"
+          "better to suffer while you're still alive,\nand not for eternity after.")
     exit("dead")  # TODO: will be replaced later with replayability feature and entity jumpscares
+
+# meow

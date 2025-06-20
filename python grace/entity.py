@@ -2,9 +2,9 @@
 # i hate circular imports now i have to make 23823840843084023840 files
 # the class is called mainEntity because everything was in a single file and i thought >
 # > that that was cringe and it in fact is it looks much better now and i seem smarter than i actually am
+import asyncio
 import random
 import time
-
 import config
 
 
@@ -58,7 +58,7 @@ def dozerSpawn():  # dozer spawn function
 
 def sorrowSpawn():  # sorrow spawn function
     from config import randSleep, playerDead
-    from movementClass import inputListener
+    from movement import inputListener
     global sorrowSpawned, sorrow
     if not sorrowSpawned and sorrow.spawnsFrom >= config.saferoom:
         sorrowSpawned = True
@@ -71,7 +71,7 @@ def sorrowSpawn():  # sorrow spawn function
         if config.gameOn:
             print("sorrow has despawned, you can move now")
             sorrowSpawned = False
-            inputListener()  # restarts input listener
+            asyncio.run(inputListener())  # restarts input listener
     else:
         entitySpawner()
 
@@ -198,3 +198,5 @@ spawnDictionary = {
     goatman: goatmanSpawn,
     carnation: carnationSpawn
 }
+
+# meow
