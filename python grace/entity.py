@@ -63,7 +63,8 @@ def sorrowSpawn():  # sorrow spawn function
     if not sorrowSpawned and sorrow.spawnsFrom >= config.saferoom:
         sorrowSpawned = True
         config.mainInput = False  # if sorrowSpawned is true, inputlistener stops
-        config.mainInput = input("stay silent, don't make one sound")  # this is done to make sure you can't input anything
+        config.mainInput = input(
+            "stay silent, don't make one sound")  # this is done to make sure you can't input anything
         randSleep(80, 200)  # between spawn and the kill check and get away with it
         time.sleep(sorrow.checkTime)  # wait the time specified
         if config.mainInput:  # kill check, checks if the player has moved at all during the interval
@@ -137,11 +138,11 @@ def goatmanSpawn():  # goatman spawn function
     global goatman, goatmanSpawned
     if not goatmanSpawned:
         goatmanSpawned = True
-        print("HIdeNOw")
+        print("HIdeNOWWWWWWWWWWWWWWWWWWWWWW")
         while not config.inSaferoom:
             print("HIdeNOw")
             time.sleep(goatman.checkTime)
-            #TODO: implement kill check
+            # TODO: implement kill check
 
 
 def rueSpawn():  # rue spawn function
@@ -170,16 +171,18 @@ def carnationSpawn():  # carnation spawn function
 
 def entitySpawner():  # main entity spawner function
     global slight, heed, entityTypes
-    #TODO: finish(ed?)
-    def entityOperator(): # decides the entity to be spawned
-        candidateEntity = random.choice(entityTypes) # randomly chooses an entity
-        if candidateEntity.mainEntity.spawnsFrom >= config.saferoom: # checks if the entity is allowed to spawn
-            return candidateEntity # yields the entity
+
+    # TODO: finish(ed?)
+    def entityOperator():  # decides the entity to be spawned
+        candidateEntity = random.choice(entityTypes)  # randomly chooses an entity
+        if candidateEntity.mainEntity.spawnsFrom >= config.saferoom:  # checks if the entity is allowed to spawn
+            return candidateEntity  # yields the entity
         else:
-            entityOperator() # reruns if spawn is not allowed
+            entityOperator()  # reruns if spawn is not allowed
+
     spawningEntity = entityOperator()
-    if spawningEntity.spawnsWhere <= 0: # if the spawning entity spawns in the back or current room, >
-        spawnDictionary.get(spawningEntity, lambda: None)() # > fetch the spawn function from the entity dictionary
+    if spawningEntity.spawnsWhere <= 0:  # if the spawning entity spawns in the back or current room, >
+        spawnDictionary.get(spawningEntity, lambda: None)()  # > fetch the spawn function from the entity dictionary
     else:
         if spawningEntity == slight:
             config.slightRoom = min(config.roomsRemaining, 3)

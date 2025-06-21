@@ -14,7 +14,7 @@ rueSpawned = False  # stores whether the entity rue has spawned (duplicate spawn
 direction = 0  # stores the direction the player is looking based on last movement: 0/12 = forward, 3 = right, 6 = back, 9 = left
 location = 0  # stores whether the player is located on the left (-1), middle (0) or right (1)
 saferoom = 0  # number of saferooms
-SFTime = 80  # time in seconds the player has after leaving the saferoom to reach the next saferoom before goatman spawns
+SFTime = 40  # time in seconds the player has after leaving the saferoom to reach the next saferoom before goatman spawns
 timeRemaining = 0  # the remaining time of the player
 currentRoom = 0  # the room you are between the saferooms
 roomsRemaining = 0  # the remaining rooms until the next saferoom
@@ -35,14 +35,17 @@ slugfishOn = False  # dictates whether the entity slugfish is activated
 goatmanOn = False  # dictates whether the entity goatman is activated
 carnationOn = False  # dictates whether the entity carnation is activated
 mainInput = None  # manages the player chat input
-mainInputCondition = asyncio.Condition(mainInput)
+mainInputLock = asyncio.Lock()
+mainInputCondition = asyncio.Condition(lock=mainInputLock)
+
 
 async def setMainInput(recInput):
+    # print("setMainInput run")
     global mainInput
-    newInputAvailable = False  # whether if new input available
-    print(mainInputCondition.locked())
-    async with mainInputCondition: #
-        mainInput = recInput # set recInput (receivedInput) to mainInput
+    # print(mainInputCondition.locked())
+    async with mainInputCondition:  #
+        # print("async with mainInputCondition (setMainInput)")
+        mainInput = recInput  # set recInput (receivedInput) to mainInput
         mainInputCondition.notify_all()  # wake up the threads
 
 
@@ -55,6 +58,6 @@ def playerDead(deathBy):  # manages the player's death and ends the game
     print(f"you died to {deathBy}")
     print(f"you can always try again. \nit's probably in your best interest to do so,\n"
           "better to suffer while you're still alive,\nand not for eternity after.")
-    exit("dead")  # TODO: will be replaced later with replayability feature and entity jumpscares
+    exit("dead")
 
 # meow
