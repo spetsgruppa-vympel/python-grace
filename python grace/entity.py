@@ -58,7 +58,7 @@ def dozerSpawn():  # dozer spawn function
 
 def sorrowSpawn():  # sorrow spawn function
     from config import randSleep, playerDead
-    from movement import inputListener
+    from controls import inputListener
     global sorrowSpawned, sorrow
     if not sorrowSpawned and sorrow.spawnsFrom >= config.saferoom:
         sorrowSpawned = True

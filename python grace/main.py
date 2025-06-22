@@ -1,4 +1,3 @@
-# the file you are not supposed to import anything from
 # i hate circular imports
 import asyncio
 import config
@@ -6,14 +5,14 @@ from config import randSleep
 
 
 def startTimerInThread():
-    from movement import timer
+    from controls import timer
     asyncio.run(timer())
 
 
 def mainGameplayLoop():  # active while you are not in a saferoom and alive
     from room import roomGenerator
     from room import generateRoom
-    from movement import inputLoop
+    from controls import inputLoop
     config.timeRemaining = config.SFTime
     config.roomsRemaining = 15 + min(40, config.saferoom)
     config.gameOn = True
@@ -57,19 +56,15 @@ def main():
     print("6. peerpressure: move to the side, out of its way.")
     print("7. ALWAYSSUFFER: good luck.")
     randSleep(10, 100)
-    print("optional entities:")
     print("8. lefttowander: watch your back from time to time, it's scared of light")
-    rueOn = bool(input("do you want rue on?"))  # sets entity number 8 (rue) to true or false depending on the player
-    if rueOn:
-        from entity import entityTypes, rue
-
-        entityTypes.append(rue)
     randSleep(10, 100)
     mainInput = str(input("press enter to start the game"))
     print("starting game. . .")
     # initial game setup
     mainGameplayLoop()
 
+if __name__ == "__main__":
+    main()
 
 # TODO LIST: inputHandler to handle and validate inputs received: DONE
 # TODO LIST: finish room generation system: DONE
@@ -86,5 +81,3 @@ def main():
 
 # meow
 
-if __name__ == "__main__":
-    main()

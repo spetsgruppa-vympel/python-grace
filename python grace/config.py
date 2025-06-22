@@ -24,16 +24,17 @@ heedRoom = 0  # room heed spawned in
 
 currentRoomType = 0  # stores the current room type of the player
 nextThreeRooms = []  # stores the next three rooms
-inventory = []  # manages the inventory
+
 
 longRoomTicked = None  # stores if you are in the first or second part of a long room
-dozerOn = False  # dictates whether the entity dozer is activated
-sorrowOn = False  # dictates whether the entity sorrow is activated
-heedOn = False  # dictates whether the entity heed is activated
-slightOn = False  # dictates whether the entity slight is activated
-slugfishOn = False  # dictates whether the entity slugfish is activated
-goatmanOn = False  # dictates whether the entity goatman is activated
-carnationOn = False  # dictates whether the entity carnation is activated
+dozerOn = True  # dictates whether the entity dozer is activated
+sorrowOn = True  # dictates whether the entity sorrow is activated
+heedOn = True  # dictates whether the entity heed is activated
+slightOn = True  # dictates whether the entity slight is activated
+slugfishOn = True  # dictates whether the entity slugfish is activated
+goatmanOn = True  # dictates whether the entity goatman is activated
+carnationOn = True  # dictates whether the entity carnation is activated
+rueOn = True
 mainInput = None  # manages the player chat input
 mainInputLock = asyncio.Lock()
 mainInputCondition = asyncio.Condition(lock=mainInputLock)
