@@ -5,6 +5,8 @@
 import asyncio
 import random
 import time
+from time import sleep
+
 import config
 
 
@@ -85,12 +87,13 @@ def heedSpawn():  # heed spawn function
         print("look into the eye, it's in a few rooms")
         while config.heedRoom > config.currentRoom:
             time.sleep(0.1)
-        if config.heedRoom == config.currentRoom and heedDirection != config.direction:  # kill check, if the player isn't looking in
+        if config.heedRoom == config.currentRoom and heedDirection != config.direction and config.gameOn:  # kill check, if the player isn't looking in
             if config.playerTagged:
                 playerDead("slight")  # calls playerDead by slight
             else:
                 config.playerTagged = True
                 print("you were tagged by heed, look into the eye, next time you will die")
+                heedSpawned = False
             if config.gameOn:
                 print("heed has despawned")
                 heedSpawned = False
@@ -105,11 +108,12 @@ def slightSpawn():  # slight spawn function
         slightSpawned = True
         slightDirection = 3 * (random.randint(0, 3))  # the location of the eye
         print("don't look into the eye, it's in a few rooms")
-        if config.slightRoom == config.currentRoom and slightDirection == config.direction:
+        if config.slightRoom == config.currentRoom and slightDirection == config.direction and config.gameOn:
             if config.playerTagged:
                 playerDead("slight")
             else:
                 config.playerTagged = True
+                slightSpawned = False
                 print("you were tagged by slight, don't look into the eye, next time you will die")
         if config.gameOn:
             print("slight has despawned")
@@ -124,7 +128,7 @@ def slugfishSpawn():  # slugfish spawn function
     if not slugfishSpawned:
         print("slugfish has spawned, hug the wall")
         time.sleep(slugfish.checkTime)
-        if config.location == 0:  # kills the player if they are in the middle of the room
+        if config.location == 0 and config.gameOn:  # kills the player if they are in the middle of the room
             playerDead("slugfish")
         if config.gameOn:
             print("slugfish has despawned")
@@ -134,25 +138,38 @@ def slugfishSpawn():  # slugfish spawn function
 
 
 def goatmanSpawn():  # goatman spawn function
+    from inventory import flashlight
     global goatman, goatmanSpawned
     if not goatmanSpawned:
-        goatmanSpawned = True
-        print("HIdeNOWWWWWWWWWWWWWWWWWWWWWW")
-        while not config.inSaferoom:
-            print("HIdeNOw")
-            time.sleep(goatman.checkTime)
-            # TODO: implement kill check
+        goatmanSpawned = True  # ensure that only one instance of goatman exists at one time
+        while not config.inSaferoom and config.gameOn:  # repeats until the player dies or enters saferoom
+            print("hidENOw")
+            sleep(goatman.checkTime)  # wait the time specified in goatman's checkTime attribute
+            if config.currentItem != flashlight:  # if player is not holding a flashlight, kill
+                config.playerDead("goatman")
 
 
 def rueSpawn():  # rue spawn function
     global rue
+    from controls import directionDictionary
+    from inventory import flashlight
     if not config.rueSpawned:
-        config.rueSpawned = True
-        print("rue has spawned, watch your back and flash it when it gets close")
-        for i in range(rue.recAmount):
-            pass  # TODO: implement kill check
+        config.rueSpawned = True  # ensure that only one instance of rue exists at one time
+        for i in range(rue.recAmount):  # repeat the spawn recAmount times
+            if config.gameOn:
+                rueDirection = 3 * random.randint(1,4)  # set the direction from which rue approaches
+                print(f"rue has spawned from the {directionDictionary[rueDirection]} direction"
+                      f"you need to look at it and flash it when it comes close. don't move after flashing it until"
+                      f"i tell you it's safe.")
+                sleep(rue.checkTime)
+                if config.mainInput != "f" or config.direction != rueDirection or config.currentItem != flashlight:
+                    config.playerDead("rue")
+                else:
+                    if i <= rue.recAmount:
+                        print("you can move now.")
+                        config.randSleep(100,1000)
     if config.gameOn:
-        print("rue has despawned")
+        print("rue has completely despawned")
         config.rueSpawned = False
 
 

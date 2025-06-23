@@ -6,7 +6,7 @@ import time
 
 # general bools
 gameOn = False  # active while the game is running
-devMode = True  # dictates whether devmode is activated or not, devmode makes you unkillable and disables randsleep
+devMode = False  # dictates whether devmode is activated or not, devmode makes you unkillable and disables randsleep
 playerTagged = False  # dictates whether the player was tagged by heed or slight
 inSaferoom = False  # whether the player is in the saferoom or not
 crouching = False  # whether the player is crouching
