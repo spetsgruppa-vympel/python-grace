@@ -63,8 +63,7 @@ def sorrowSpawn():  # sorrow spawn function
     if not sorrowSpawned and sorrow.spawnsFrom >= config.saferoom:
         sorrowSpawned = True
         config.mainInput = False  # if sorrowSpawned is true, inputlistener stops
-        config.mainInput = input(
-            "stay silent, don't make one sound")  # this is done to make sure you can't input anything
+        config.mainInput = input("stay silent, don't make a sound")  # this is done to make sure you can't input more
         randSleep(80, 200)  # between spawn and the kill check and get away with it
         time.sleep(sorrow.checkTime)  # wait the time specified
         if config.mainInput:  # kill check, checks if the player has moved at all during the interval

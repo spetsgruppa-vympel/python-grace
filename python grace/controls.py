@@ -149,45 +149,51 @@ async def inputListener():  # listens for input
 async def inputHandler():  # handles game input and redirects to the adequate function
     # print("inputHandler")
     import config
-    if config.mainInput == "w":
-        if not config.crouching:
+    from config import currentItem
+    from inventory import lamp
+    if config.mainInput == "w":  # move forward
+        if not config.crouching or config.inventoryOpen:
             forward()
-            # print("MOVED FORWARD YAY")
-    elif config.mainInput == "a":
-        if not config.crouching:
+    elif config.mainInput == "a":  # move left
+        if not config.crouching or config.inventoryOpen:
             left()
-    elif config.mainInput == "s":
-        if not config.crouching:
+    elif config.mainInput == "s":  # move back
+        if not config.crouching or config.inventoryOpen:
             backwards()
-    elif config.mainInput == "d":
-        if not config.crouching:
+    elif config.mainInput == "d":  # move right
+        if not config.crouching or config.inventoryOpen:
             right()
-    elif config.mainInput == "ww":
-        if not config.crouching:
+    elif config.mainInput == "ww":  # move forward without looking
+        if not config.crouching or config.inventoryOpen:
             moveForward()
-    elif config.mainInput == "aa":
-        if not config.crouching:
+    elif config.mainInput == "aa":  # move left without looking
+        if not config.crouching or config.inventoryOpen:
             moveLeft()
-    elif config.mainInput == "ss":
-        if not config.crouching:
+    elif config.mainInput == "ss":  # move back without looking
+        if not config.crouching or config.inventoryOpen:
             moveBackwards()
-    elif config.mainInput == "dd":
-        if not config.crouching:
+    elif config.mainInput == "dd":  # move right without looking
+        if not config.crouching or config.inventoryOpen:
             moveRight()
-    elif config.mainInput == "c":
-        crouch()
+    elif config.mainInput == "i":  # open/close inventory
+        pass
+    elif config.mainInput == "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9":  # select inventory slot
+        pass
+    elif config.mainInput == "f":
+        pass
     elif config.mainInput == "info":
-        print(f"you have {config.roomsRemaining} rooms remaining until saferoom {config.saferoom + 1},")
-        print(f"you are facing {directionDictionary[config.direction]}, current room type is {config.currentRoomType}")
-        print(
-            f"you are in the {locationDictionary[config.location]} of the room and have {config.timeRemaining} time remaining")
-        if config.roomsRemaining >= 3:
+        if currentItem == lamp:
+            print(f"you have {config.roomsRemaining} rooms remaining until saferoom {config.saferoom + 1},")
+            print(f"you are facing {directionDictionary[config.direction]}, current room type is {config.currentRoomType}")
             print(
-                f"the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
-        elif config.roomsRemaining == 2:
-            print(f"the next rooms are: {config.nextThreeRooms[0]} and the saferoom")
-        else:
-            print(f"you have one more room, the saferoom")
+                f"you are in the {locationDictionary[config.location]} of the room and have {config.timeRemaining} time remaining")
+            if config.roomsRemaining >= 3:
+                print(
+                    f"the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
+            elif config.roomsRemaining == 2:
+                print(f"the next rooms are: {config.nextThreeRooms[0]} and the saferoom")
+            else:
+                print(f"you have one more room, the saferoom")
     elif config.mainInput == 0:
         pass
     else:

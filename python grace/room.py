@@ -26,6 +26,7 @@ randomlyGeneratedRooms = [normalRoom, longRoom]  # stores the rooms that can be 
 
 
 def nextRoom():
+    from inventory import lamp
     if config.location == 0:  # checks first whether in the middle of the room
         if len(config.nextThreeRooms) > 1:  # checks if nextThreeRooms has one or more rooms left
             config.currentRoomType = config.nextThreeRooms.pop(0)
@@ -34,11 +35,13 @@ def nextRoom():
         config.roomsPassed += 1  # increases roomsPassed
         config.roomsRemaining -= 1  # increases roomsRemaining
         config.currentRoom += 1  # increases currentRoom
-        print("you have passed one room")
+        if config.currentItem == lamp:
+            print("you have passed one room")
     else:
         if config.currentRoomType in [longRoom, longSafeRoom, longHidingSpot]:
             config.longRoomTicked = True
-        print("you need to be in the middle to move to the next room")
+        if config.currentItem == lamp:
+            print("you need to be in the middle to move to the next room")
 
 
 def generateRoom(amount, specificRoom1=None, specificRoom2=None):  # yields (amount) rooms>

@@ -12,25 +12,25 @@ def startTimerInThread():
 def mainGameplayLoop():  # active while you are not in a saferoom and alive
     from room import roomGenerator
     from room import generateRoom
-    from controls import inputLoop
     config.timeRemaining = config.SFTime
-    config.roomsRemaining = 15 + min(40, config.saferoom)
-    config.gameOn = True
+    config.roomsRemaining = 15 + min(40, config.saferoom * 3)  # set roomsRemaining to a maximum of 55
+    config.gameOn = True  # sets gameOn to true
     roomGenerator()  # generate the first three rooms
     config.currentRoomType = config.nextThreeRooms.pop(0)
     # ^ gens the first room type and removes it from next three rooms
     config.nextThreeRooms.extend(list(generateRoom(1)))  # gens another room to compensate for the first room's removal
-    asyncio.run(inputLoop())
     startTimerInThread()  # starts timer
-    while config.gameOn:
+    while config.gameOn:  # entity spawning loop
         pass  # TODO: entity spawn
 
 
 def main():
+    from controls import inputLoop
     print("heres the tutorial")
     randSleep(10, 100)
     print("\n \n \n \n \n \n")
-    print("controls: \ncrouch: c\nforward: w\nleft: a\nback: s\nright: d\nrun: r\ncheck information: info")
+    print(f"controls: \ncrouch: c\nforward: w\nleft: a\nback: s\nright: d\nrun: r\ncheck your current information: "
+          f"info\n enter/exit inventory: i\nselect an inventory item: press the key according to the slot\nuse selected item: f")
     randSleep(10, 100)
     print("walking in a direction makes you look in that direction")
     randSleep(10, 100)
@@ -44,6 +44,7 @@ def main():
     randSleep(10, 100)
     print("you can't go to passed rooms")
     randSleep(10, 100)
+    print("you can't move while your inventory is open")
     randSleep(10, 100)
     print("")
     print("entities:")
@@ -58,10 +59,12 @@ def main():
     randSleep(10, 100)
     print("8. lefttowander: watch your back from time to time, it's scared of light")
     randSleep(10, 100)
-    mainInput = str(input("press enter to start the game"))
+    input("press enter to start the game")
     print("starting game. . .")
     # initial game setup
-    mainGameplayLoop()
+    asyncio.run(inputLoop())  # starts input loop for the first time
+    mainGameplayLoop()  # starts main gameplay loop
+
 
 if __name__ == "__main__":
     main()
@@ -72,8 +75,8 @@ if __name__ == "__main__":
 # TODO LIST: implement entity spawning system: NEEDS SPAWN CONDITION
 # TODO LIST: kill all entities when saferoom is entered (they can still kill the player): DELAYED FK THAT
 # TODO LIST: finish controls: done but real men play without look controls
-# TODO LIST: put in more files AND FIX THE CIRCULAR IMPORTS: done
-# TODO LIST: implement inventory and rue (ily rue)
+# TODO LIST: FIX THE CIRCULAR IMPORTS: done
+# TODO LIST: implement inventory rue and goatman (ily rue): in progress
 # TODO LIST: comment code better (typing benchmark go brrr)
 # TODO LIST: playtest
 # TODO LIST: ability to go back to previous rooms (prevRoom)

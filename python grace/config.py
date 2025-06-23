@@ -4,6 +4,7 @@ import asyncio
 import random
 import time
 
+# general bools
 gameOn = False  # active while the game is running
 devMode = True  # dictates whether devmode is activated or not, devmode makes you unkillable and disables randsleep
 playerTagged = False  # dictates whether the player was tagged by heed or slight
@@ -11,6 +12,7 @@ inSaferoom = False  # whether the player is in the saferoom or not
 crouching = False  # whether the player is crouching
 rueSpawned = False  # stores whether the entity rue has spawned (duplicate spawns are not allowed)
 
+# room-related variables
 direction = 0  # stores the direction the player is looking based on last movement: 0/12 = forward, 3 = right, 6 = back, 9 = left
 location = 0  # stores whether the player is located on the left (-1), middle (0) or right (1)
 saferoom = 0  # number of saferooms
@@ -21,12 +23,11 @@ roomsRemaining = 0  # the remaining rooms until the next saferoom
 roomsPassed = 0  # the rooms that have been passed in total
 slightRoom = 0  # room slight spawned in
 heedRoom = 0  # room heed spawned in
-
+longRoomTicked = None  # stores if you are in the first or second part of a long room
 currentRoomType = 0  # stores the current room type of the player
 nextThreeRooms = []  # stores the next three rooms
 
-
-longRoomTicked = None  # stores if you are in the first or second part of a long room
+# entity related bools
 dozerOn = True  # dictates whether the entity dozer is activated
 sorrowOn = True  # dictates whether the entity sorrow is activated
 heedOn = True  # dictates whether the entity heed is activated
@@ -34,7 +35,14 @@ slightOn = True  # dictates whether the entity slight is activated
 slugfishOn = True  # dictates whether the entity slugfish is activated
 goatmanOn = True  # dictates whether the entity goatman is activated
 carnationOn = True  # dictates whether the entity carnation is activated
-rueOn = True
+rueOn = True  # dictates whether the entity rue is activated
+
+# inventory stuff
+inventory = []  # stores the current inventory of the player
+currentItem = 0  # stores the current item held by the player
+inventoryOpen = False  # stores whether the inventory is open. you can't move if it is.
+
+# mainInput stuff
 mainInput = None  # manages the player chat input
 mainInputLock = asyncio.Lock()
 mainInputCondition = asyncio.Condition(lock=mainInputLock)
