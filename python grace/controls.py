@@ -148,6 +148,7 @@ async def inputListener():  # listens for input
 
 async def inputHandler():  # handles game input and redirects to the adequate function
     # print("inputHandler")
+    from inventory import openCloseInventory
     import config
     from config import currentItem
     from inventory import lamp
@@ -176,10 +177,12 @@ async def inputHandler():  # handles game input and redirects to the adequate fu
         if not config.crouching or config.inventoryOpen:
             moveRight()
     elif config.mainInput == "i":  # open/close inventory
-        pass
+        openCloseInventory()
     elif config.mainInput == "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9":  # select inventory slot
         pass
-    elif config.mainInput == "f":
+    elif config.mainInput == "f":  # use selected inventory item
+        pass
+    elif config.mainInput == "p":  # pick up item in room
         pass
     elif config.mainInput == "info":
         if currentItem == lamp:

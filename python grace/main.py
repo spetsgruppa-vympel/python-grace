@@ -26,11 +26,13 @@ def mainGameplayLoop():  # active while you are not in a saferoom and alive
 
 def main():
     from controls import inputLoop
+    from inventory import flashlight, lamp
     print("heres the tutorial")
     randSleep(10, 100)
     print("\n \n \n \n \n \n")
     print(f"controls: \ncrouch: c\nforward: w\nleft: a\nback: s\nright: d\nrun: r\ncheck your current information: "
-          f"info\n enter/exit inventory: i\nselect an inventory item: press the key according to the slot\nuse selected item: f")
+          f"info\nenter/exit inventory: i\nselect an inventory item: press the key according to the slot"
+          f"\nuse selected item: f\n pick up an item: p")
     randSleep(10, 100)
     print("walking in a direction makes you look in that direction")
     randSleep(10, 100)
@@ -45,6 +47,10 @@ def main():
     print("you can't go to passed rooms")
     randSleep(10, 100)
     print("you can't move while your inventory is open")
+    randSleep(10, 100)
+    print("you will start with the lamp equipped and a flashlight in your inventory")
+    print("you can't receive room information without the lamp equipped")
+    print("you will find holy water in some rooms, ")
     randSleep(10, 100)
     print("")
     print("entities:")
@@ -62,6 +68,7 @@ def main():
     input("press enter to start the game")
     print("starting game. . .")
     # initial game setup
+    config.inventory.extend(lamp, flashlight)  # add lamp and flashlight to the starting player inventory
     asyncio.run(inputLoop())  # starts input loop for the first time
     mainGameplayLoop()  # starts main gameplay loop
 
@@ -83,4 +90,3 @@ if __name__ == "__main__":
 # TODO LIST: kill myself: in preparation
 
 # meow
-
