@@ -5,32 +5,62 @@ def holyWaterUse():  # called when holy water is used
     if config.playerTagged:
         print("used holy water, tag has been removed")
         config.playerTagged = False
+        # TODO: remove item when used
     else:
         print("why did you waste this? you weren't tagged and now you aren't either")
 
 
-class mainInventory: # define inventory class
-    def __init__(self, spawnable, consumed, reuseTimer, useEffect = None):
+def flashlightUse():  # flashlight use function
+    from entity import goatmanSpawned, rueSpawned
+    # if the proper conditions are fulfilled, flash rue
+    if rueSpawned and config.rueRemainingTime <= 1.5 and config.direction == config.rueDirection:
+        config.rueFlashed = True
+        print("you flashed rue, don't move until i tell you it's safe")
+    # if only time is correct, inform the player
+    elif rueSpawned and config.rueRemainingTime <= 1.5 and config.direction != config.rueDirection:
+        print("wrong direction, TURN FAST")
+    # if only direction is correct, inform the player
+    elif rueSpawned and config.direction == config.rueDirection and config.rueRemainingTime > 1.5:
+        print("too soon")
+    # if rue spawned but nothing else is good, inform the player
+    elif rueSpawned and not config.direction == config.rueDirection and not config.rueRemainingTime <= 1.5:
+        print("wrong direction and too soon")
+    # if the proper conditions are fulfilled, flash goatman
+    if goatmanSpawned and config.direction == config.goatmanDirection:
+        config.goatmanFlashed = True
+        print("you flashed goatman")
+    # if goatman spawned but missed, inform the player
+    elif goatmanSpawned and config.direction != config.goatmanDirection:
+        print("wrong direction")
+    else:  # if nothing spawned, inform the player
+        print("you didn't flash anything and neither rue nor goatman spawned, why did you waste time?")
+
+
+class mainInventory:  # define inventory class
+    def __init__(self, spawnable, consumed, reuseTimer, useEffect=None):
         self.spawnable = spawnable  # does the item spawn naturally? if no, then it spawns at the beginning of the game
         self.consumed = consumed  # does the item get consumed after use?
         self.reuseTimer = reuseTimer  # how much do you wait before being able to use again? can be zero, consumables
                                       # don't have any cooldown
         self.useEffect = useEffect  # the function that executes whatever the item does when used
 
-    def use(self):
+    def use(self):  # mainInventory use method, redirects to the adequate useEffect function of each instance
         if self.useEffect:
+            if self.consumed:  # if the item is consumed on use, remove from inventory
+                config.inventory.remove(self)
             self.useEffect()
 
-flashlight = mainInventory(False, False, 1, None)  # used versus rue and goatman
+
+flashlight = mainInventory(False, False, 1, flashlightUse)  # used versus rue and goatman
 lamp = mainInventory(False, False, None, None)  # required to receive any room-related info
 holyWater = mainInventory(True, True, None, holyWaterUse)  # removes slight/heed's tag
 
-
 inventoryDictionary = {
-    holyWater : "holy water",
-    flashlight : "flashlight",
-    lamp : "lamp",
+    holyWater: "holy water",
+    flashlight: "flashlight",
+    lamp: "lamp",
 }
+
 
 def openCloseInventory():  # opens or closes the inventory when called
     if not config.inventoryOpen:  # if inventory is not open, open it, block movement and print current inventory
@@ -39,4 +69,3 @@ def openCloseInventory():  # opens or closes the inventory when called
     else:  # if inventory is open, close it
         config.inventoryOpen = False
         print("inventory closed")
-

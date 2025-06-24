@@ -38,6 +38,7 @@ slightSpawned = False  # stores whether the entity slight has spawned (duplicate
 slugfishSpawned = False  # stores whether the entity slugfish has spawned (duplicate spawns are not allowed)
 goatmanSpawned = False  # stores whether the entity goatman has spawned (duplicate spawns are not allowed)
 carnationSpawned = False  # stores whether the entity carnation has spawned (duplicate spawns are not allowed)
+rueSpawned = False  # stores whether the entity rue has spawned (duplicate spawns are not allowed)
 
 
 def dozerSpawn():  # dozer spawn function
@@ -147,22 +148,29 @@ def goatmanSpawn():  # goatman spawn function
             sleep(goatman.checkTime)  # wait the time specified in goatman's checkTime attribute
             if config.currentItem != flashlight:  # if player is not holding a flashlight, kill
                 config.playerDead("goatman")
+                # TODO: implement the direction mechanics here too
 
 
 def rueSpawn():  # rue spawn function
     global rue
     from controls import directionDictionary
     from inventory import flashlight
-    if not config.rueSpawned:
+    if not rueSpawned:
         config.rueSpawned = True  # ensure that only one instance of rue exists at one time
         for i in range(rue.recAmount):  # repeat the spawn recAmount times
             if config.gameOn:
-                rueDirection = 3 * random.randint(1,4)  # set the direction from which rue approaches
-                print(f"rue has spawned from the {directionDictionary[rueDirection]} direction"
+                config.rueDirection = 3 * random.randint(1,4)  # set the direction from which rue approaches
+                print(f"rue has spawned from the {directionDictionary[config.rueDirection]} direction"
                       f"you need to look at it and flash it when it comes close. don't move after flashing it until"
                       f"i tell you it's safe.")
-                sleep(rue.checkTime)
-                if config.mainInput != "f" or config.direction != rueDirection or config.currentItem != flashlight:
+                # set up a non-blocking sleep loop
+                config.rueRemainingTime = rue.checkTime
+                checkInterval = 0.1  # seconds
+                # count down in small intervals so remainingTime is always current
+                while config.rueRemainingTime > 0:
+                    time.sleep(checkInterval)
+                    config.rueRemainingTime = max(0, config.rueRemainingTime - checkInterval)
+                if config.mainInput != "f" or config.direction != config.rueDirection or config.currentItem != flashlight:
                     config.playerDead("rue")
                 else:
                     if i <= rue.recAmount:
@@ -171,6 +179,8 @@ def rueSpawn():  # rue spawn function
     if config.gameOn:
         print("rue has completely despawned")
         config.rueSpawned = False
+    else:
+        entitySpawner()
 
 
 def carnationSpawn():  # carnation spawn function
@@ -187,7 +197,6 @@ def carnationSpawn():  # carnation spawn function
 
 def entitySpawner():  # main entity spawner function
     global slight, heed, entityTypes
-
     # TODO: finish(ed?)
     def entityOperator():  # decides the entity to be spawned
         candidateEntity = random.choice(entityTypes)  # randomly chooses an entity

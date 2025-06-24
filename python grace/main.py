@@ -88,5 +88,5 @@ if __name__ == "__main__":
 # TODO LIST: playtest
 # TODO LIST: ability to go back to previous rooms (prevRoom)
 # TODO LIST: kill myself: in preparation
-
+# TODO LIST: if all entities are spawned, entitySpawner goes on forever
 # meow

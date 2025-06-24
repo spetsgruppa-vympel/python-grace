@@ -10,7 +10,6 @@ devMode = False  # dictates whether devmode is activated or not, devmode makes y
 playerTagged = False  # dictates whether the player was tagged by heed or slight
 inSaferoom = False  # whether the player is in the saferoom or not
 crouching = False  # whether the player is crouching
-rueSpawned = False  # stores whether the entity rue has spawned (duplicate spawns are not allowed)
 
 # room-related variables
 direction = 0  # stores the direction the player is looking based on last movement: 0/12 = forward, 3 = right, 6 = back, 9 = left
@@ -36,11 +35,17 @@ slugfishOn = True  # dictates whether the entity slugfish is activated
 goatmanOn = True  # dictates whether the entity goatman is activated
 carnationOn = True  # dictates whether the entity carnation is activated
 rueOn = True  # dictates whether the entity rue is activated
+rueRemainingTime = 0  # stores how much more time before rue attacks
+goatmanRemainingTime = 0  # ditto for goatman
+rueDirection = 0  # the direction rue has
+goatmanDirection = 0  # the direction goatman has
 
 # inventory stuff
 inventory = []  # stores the current inventory of the player
 currentItem = 0  # stores the current item held by the player
 inventoryOpen = False  # stores whether the inventory is open. you can't move if it is.
+rueFlashed = False  # stores whether rue is flashed
+goatmanFlashed = False  # stores whether goatman is flashed
 
 # mainInput stuff
 mainInput = None  # manages the player chat input

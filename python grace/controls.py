@@ -154,37 +154,50 @@ async def inputHandler():  # handles game input and redirects to the adequate fu
     from inventory import lamp
     if config.mainInput == "w":  # move forward
         if not config.crouching or config.inventoryOpen:
+            config.rueFlashed = False
             forward()
     elif config.mainInput == "a":  # move left
         if not config.crouching or config.inventoryOpen:
+            config.rueFlashed = False
             left()
     elif config.mainInput == "s":  # move back
         if not config.crouching or config.inventoryOpen:
+            config.rueFlashed = False
             backwards()
     elif config.mainInput == "d":  # move right
         if not config.crouching or config.inventoryOpen:
+            config.rueFlashed = False
             right()
     elif config.mainInput == "ww":  # move forward without looking
         if not config.crouching or config.inventoryOpen:
+            config.rueFlashed = False
             moveForward()
     elif config.mainInput == "aa":  # move left without looking
         if not config.crouching or config.inventoryOpen:
+            config.rueFlashed = False
             moveLeft()
     elif config.mainInput == "ss":  # move back without looking
         if not config.crouching or config.inventoryOpen:
+            config.rueFlashed = False
             moveBackwards()
     elif config.mainInput == "dd":  # move right without looking
         if not config.crouching or config.inventoryOpen:
+            config.rueFlashed = False
             moveRight()
     elif config.mainInput == "i":  # open/close inventory
+        config.rueFlashed = False
         openCloseInventory()
     elif config.mainInput == "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9":  # select inventory slot
-        pass
+        config.rueFlashed = False
+        config.currentItem = config.inventory[config.mainInput-1]  # TODO: maybe finished
     elif config.mainInput == "f":  # use selected inventory item
-        pass
+        config.rueFlashed = False
+        pass  # TODO
     elif config.mainInput == "p":  # pick up item in room
-        pass
+        config.rueFlashed = False
+        pass  # TODO
     elif config.mainInput == "info":
+        config.rueFlashed = False
         if currentItem == lamp:
             print(f"you have {config.roomsRemaining} rooms remaining until saferoom {config.saferoom + 1},")
             print(f"you are facing {directionDictionary[config.direction]}, current room type is {config.currentRoomType}")
