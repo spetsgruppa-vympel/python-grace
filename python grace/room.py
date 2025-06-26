@@ -85,13 +85,11 @@ def roomGenerator():  # generates the next three rooms
     config.nextThreeRooms = []
     if config.roomsRemaining > 3 and not carnationSpawned:  # randomly generate three rooms
         config.nextThreeRooms.extend(list(generateRoom(3)))
-        # config.roomsRemaining -= 3
     elif config.roomsRemaining <= 3:  # if there are 3 or fewer rooms, generate roomsRemaining-1 rooms
         config.nextThreeRooms.extend(list(generateRoom(config.roomsRemaining - 1)))  # and then the saferoom
         config.nextThreeRooms.extend(list([normalSafeRoom]))
-        # config.roomsRemaining -= len(config.nextThreeRooms)
     elif config.roomsRemaining > 3 and carnationSpawned:  # if carnation spawned, forcespawns a hiding room on the
-        # 3rd room
+                                                          # 3rd room
         config.nextThreeRooms.extend(list(generateRoom(2)))
         config.nextThreeRooms.extend(list(random.choice([longHidingSpot, normalHidingSpot])))
     if config.roomsRemaining >= 3:
