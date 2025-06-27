@@ -4,21 +4,22 @@ from entity import carnationSpawned
 
 
 class mainRoom:  # define main room class used to generate room types
-    def __init__(self, hidingSpot, isLongRoom, isSaferoom, heedSlightSpawns, roomIdentifier, roomNumber):
+    def __init__(self, hidingSpot, isLongRoom, isSaferoom, heedSlightSpawns, roomIdentifier):
         self.hidingSpot = hidingSpot  # does the room contain a hiding spot to avoid carnation?
         self.isLongRoom = isLongRoom  # is the room a long room? (needs two forwards to cross)
         self.isSaferoom = isSaferoom  # is the room the entrance to a saferoom?
         self.heedSlightSpawns = heedSlightSpawns  # can heed or slight spawn?
         self.roomIdentifier = roomIdentifier  # the name of the room that is shown to the player
-        self.roomNumber = roomNumber  # number of the room
 
+    def __str__(self):
+        return self.roomIdentifier
 
-normalRoom = mainRoom(False, False, False, True, "room", None)
-longRoom = mainRoom(False, True, False, True, "long room", None)
-normalHidingSpot = mainRoom(True, False, False, False, "hiding spot", None)
-normalSafeRoom = mainRoom(False, False, True, False, "safe room", None)
-longHidingSpot = mainRoom(True, True, False, False, "long hiding spot", None)
-longSafeRoom = mainRoom(False, True, True, False, "long safe room", None)
+normalRoom = mainRoom(False, False, False, True, "room")
+longRoom = mainRoom(False, True, False, True, "long room")
+normalHidingSpot = mainRoom(True, False, False, False, "hiding spot")
+normalSafeRoom = mainRoom(False, False, True, False, "safe room")
+longHidingSpot = mainRoom(True, True, False, False, "long hiding spot")
+longSafeRoom = mainRoom(False, True, True, False, "long safe room")
 roomTypes = [normalRoom, longRoom, normalHidingSpot, normalSafeRoom, longHidingSpot, longSafeRoom]  # stores all rooms
 randomlyGeneratedRooms = [normalRoom, longRoom]  # stores the rooms that can be generated randomly, all other rooms need
 # to be generated manually
@@ -26,7 +27,9 @@ randomlyGeneratedRooms = [normalRoom, longRoom]  # stores the rooms that can be 
 
 
 def nextRoom():
+    config.longRoomTicked = False
     from inventory import lamp
+    config.holywaterPicked = False
     if config.location == 0:  # checks first whether in the middle of the room
         if len(config.nextThreeRooms) > 1:  # checks if nextThreeRooms has one or more rooms left
             config.currentRoomType = config.nextThreeRooms.pop(0)
@@ -38,7 +41,7 @@ def nextRoom():
         if config.currentItem == lamp:
             print("you have passed one room")
     else:
-        if config.currentRoomType in [longRoom, longSafeRoom, longHidingSpot]:
+        if getattr(config.currentRoomType, "isLongRoom", False):
             config.longRoomTicked = True
         if config.currentItem == lamp:
             print("you need to be in the middle to move to the next room")
@@ -49,21 +52,19 @@ def generateRoom(amount, specificRoom1=None, specificRoom2=None):  # yields (amo
         yield random.choice(randomlyGeneratedRooms)  # > and they both generate after the random rooms
     # sorts out the specified room to be generated from mainRoom for specificRoom1
     if specificRoom1 and mainRoom:
-        if specificRoom2.isLongRoom and specificRoom2.isSaferoom:
+        if specificRoom1.isLongRoom and specificRoom1.isSaferoom:
             yield longSafeRoom  # check the properties of the object and yield longsaferoom
-        elif specificRoom2.isLongRoom and specificRoom2.hidingSpot:
+        elif specificRoom1.isLongRoom and specificRoom1.hidingSpot:
             yield longHidingSpot  # check the properties of the object and yield longhidingspot
-        elif specificRoom2.hidingSpot:
+        elif specificRoom1.hidingSpot:
             yield normalHidingSpot  # check the properties of the object and yield hidingspot
-        elif specificRoom2.isLongRoom:
+        elif specificRoom1.isLongRoom:
             yield longRoom  # check the properties of the object and yield longroom
-        elif specificRoom2.isSaferoom:
+        elif specificRoom1.isSaferoom:
             yield normalSafeRoom  # check the properties of the object and yield normalsaferoom
         else:
             print("specificroom1 received undefined input")
             exit("reeeee")
-    # yeah this kinda sucks i dont like long lines either
-    # but not much i can do
     # ditto for specificRoom2
     if specificRoom2 and mainRoom:
         if specificRoom2.isLongRoom and specificRoom2.isSaferoom:
@@ -94,7 +95,7 @@ def roomGenerator():  # generates the next three rooms
         config.nextThreeRooms.extend(list(random.choice([longHidingSpot, normalHidingSpot])))
     if config.roomsRemaining >= 3:
         print(
-            f"the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
+            f"current room is {config.currentRoomType} and the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
     elif config.roomsRemaining == 2:
         print(f"the next rooms are: {config.nextThreeRooms[0]} and the saferoom")
     else:
