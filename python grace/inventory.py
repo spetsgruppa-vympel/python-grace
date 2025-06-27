@@ -2,12 +2,12 @@ import config
 
 
 def holyWaterUse():  # called when holy water is used
-    if config.playerTagged:
+    if config.playerTagged:  # if player was tagged by slight or heed
         print("used holy water, tag has been removed")
         config.playerTagged = False
-        # TODO: remove item when used
     else:
         print("why did you waste this? you weren't tagged and now you aren't either")
+    config.inventory.remove(holyWater)
 
 
 def flashlightUse():  # flashlight use function
@@ -37,12 +37,13 @@ def flashlightUse():  # flashlight use function
 
 
 class mainInventory:  # define inventory class
-    def __init__(self, spawnable, consumed, reuseTimer, useEffect=None):
+    def __init__(self, spawnable, consumed, reuseTimer, item, useEffect=None):
         self.spawnable = spawnable  # does the item spawn naturally? if no, then it spawns at the beginning of the game
         self.consumed = consumed  # does the item get consumed after use?
         self.reuseTimer = reuseTimer  # how much do you wait before being able to use again? can be zero, consumables
                                       # don't have any cooldown
         self.useEffect = useEffect  # the function that executes whatever the item does when used
+        self.item = item  # stores the name of the item so i dont print the memory address :(
 
     def use(self):  # mainInventory use method, redirects to the adequate useEffect function of each instance
         if self.useEffect:
@@ -50,10 +51,16 @@ class mainInventory:  # define inventory class
                 config.inventory.remove(self)
             self.useEffect()
 
+    def __str__(self):
+        return str(self.item)
 
-flashlight = mainInventory(False, False, 1, flashlightUse)  # used versus rue and goatman
-lamp = mainInventory(False, False, None, None)  # required to receive any room-related info
-holyWater = mainInventory(True, True, None, holyWaterUse)  # removes slight/heed's tag
+    def __repr__(self):
+        return str(self.item)
+
+
+flashlight = mainInventory(False, False, 1, "flashlight", flashlightUse)  # used versus rue and goatman
+lamp = mainInventory(False, False, None, "lamp", None)  # required to receive any room-related info
+holyWater = mainInventory(True, True, None, "holy water", holyWaterUse)  # removes slight/heed's tag
 
 inventoryDictionary = {
     holyWater: "holy water",
@@ -66,6 +73,7 @@ def openCloseInventory():  # opens or closes the inventory when called
     if not config.inventoryOpen:  # if inventory is not open, open it, block movement and print current inventory
         config.inventoryOpen = True
         print("inventory opened")
+        print(config.inventory)
     else:  # if inventory is open, close it
         config.inventoryOpen = False
         print("inventory closed")

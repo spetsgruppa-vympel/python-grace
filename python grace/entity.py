@@ -5,7 +5,6 @@
 import asyncio
 import random
 import time
-from time import sleep
 
 import config
 
@@ -139,16 +138,24 @@ def slugfishSpawn():  # slugfish spawn function
 
 
 def goatmanSpawn():  # goatman spawn function
-    from inventory import flashlight
     global goatman, goatmanSpawned
     if not goatmanSpawned:
         goatmanSpawned = True  # ensure that only one instance of goatman exists at one time
+        print("enter the saferoom fast, you can flash IT, but IT can come from any direction")
         while not config.inSaferoom and config.gameOn:  # repeats until the player dies or enters saferoom
-            print("hidENOw")
-            sleep(goatman.checkTime)  # wait the time specified in goatman's checkTime attribute
-            if config.currentItem != flashlight:  # if player is not holding a flashlight, kill
-                config.playerDead("goatman")
-                # TODO: implement the direction mechanics here too
+            config.goatmanDirection = 3 * random.randint(1,4)  # set the direction from which goatman approaches
+            config.goatmanRemainingTime = goatman.checkTime
+            checkInterval = 0.1  # seconds
+            while config.goatmanRemainingTime > 0:
+                time.sleep(checkInterval)
+                config.goatmanRemainingTime = max(0, config.goatmanRemainingTime - checkInterval)
+                if config.goatmanFlashed:
+                    config.goatmanFlashed = False
+                    goatmanSpawned = False
+                    time.sleep(config.goatmanRemainingTime/2)
+                    goatmanSpawn()
+            if not config.inSaferoom:
+                config.playerDead("IT")
 
 
 def rueSpawn():  # rue spawn function
@@ -183,28 +190,30 @@ def rueSpawn():  # rue spawn function
         entitySpawner()
 
 
+# noinspection PyUnresolvedReferences
 def carnationSpawn():  # carnation spawn function
     global carnationSpawned, dozerSpawned, sorrowSpawned
+    from room import mainRoom
     if not carnationSpawned and not dozerSpawned and not sorrowSpawned:
         carnationSpawned = True
         print("carnation has spawned, run forwards, you will find a hiding room")
-        if config.gameOn:
-            print("carnation has despawned")
-            carnationSpawned = False
+        time.sleep(carnation.checkTime)
+        if getattr(config.currentRoomType, "hidingSpot", False) and config.gameOn:
+            config.playerDead("carnation")
+        print("carnation has despawned")
+        carnationSpawned = False
     else:
         entitySpawner()
 
 
 def entitySpawner():  # main entity spawner function
     global slight, heed, entityTypes
-    # TODO: finish(ed?)
     def entityOperator():  # decides the entity to be spawned
         candidateEntity = random.choice(entityTypes)  # randomly chooses an entity
         if candidateEntity.mainEntity.spawnsFrom >= config.saferoom:  # checks if the entity is allowed to spawn
             return candidateEntity  # yields the entity
         else:
             entityOperator()  # reruns if spawn is not allowed
-
     spawningEntity = entityOperator()
     if spawningEntity.spawnsWhere <= 0:  # if the spawning entity spawns in the back or current room, >
         spawnDictionary.get(spawningEntity, lambda: None)()  # > fetch the spawn function from the entity dictionary
