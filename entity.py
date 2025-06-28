@@ -1,5 +1,5 @@
 # stores the entities and spawned variables
-# i hate circular imports now i have to make 23823840843084023840 files
+# i hate circular imports now i have to make files
 # the class is called mainEntity because everything was in a single file and i thought >
 # > that that was cringe and it in fact is it looks much better now and i seem smarter than i actually am
 import asyncio
@@ -20,14 +20,14 @@ class mainEntity:  # define main entity class to store entities
         self.spawnsWhere = spawnsWhere  # does it spawn in the current room (0), behind (-1), or in the front (1)?
 
 
-dozer = mainEntity(True, 3, 3, False, 0, 0)  # kills if not crouching
-sorrow = mainEntity(True, 3, 3, False, 0, 0)  # kills if you move
-rue = mainEntity(True, 0, 5, True, 1, -1)  # kills if you don't flash it
-heed = mainEntity(False, 3, 3, False, 0, 1)  # tags if you don't look at it
-slight = mainEntity(False, 1, 3, False, 0, 1)  # tags if you look at it
-slugfish = mainEntity(True, 2, 2, False, 0, -1)  # kills if you are in its way
+dozer = mainEntity(True, 0, 3, False, 0, 0)  # kills if not crouching
+sorrow = mainEntity(True, 0, 2, False, 0, 0)  # kills if you move
+rue = mainEntity(True, 0, 7, True, 1, -1)  # kills if you don't flash it
+heed = mainEntity(False, 0, 5, False, 0, 1)  # tags if you don't look at it
+slight = mainEntity(False, 0, 5, False, 0, 1)  # tags if you look at it
+slugfish = mainEntity(True, 0, 3, False, 0, -1)  # kills if you are in its way
 goatman = mainEntity(True, 0, 4, True, 99999, -1)  # it's over nine thousand
-carnation = mainEntity(True, 0, 5, False, 0, -1)  # kills if not in hiding spot
+carnation = mainEntity(True, 0, 8, False, 0, -1)  # kills if not in hiding spot
 entityTypes = [dozer, sorrow, heed, slight, slugfish, carnation]
 
 dozerSpawned = False  # stores whether the entity dozer has spawned (duplicate spawns are not allowed)
@@ -190,7 +190,7 @@ def rueSpawn():  # rue spawn function
         entitySpawner()
 
 
-# noinspection PyUnresolvedReferences
+
 def carnationSpawn():  # carnation spawn function
     global carnationSpawned, dozerSpawned, sorrowSpawned
     from room import mainRoom

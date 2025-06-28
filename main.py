@@ -5,6 +5,8 @@ import time
 from threading import Thread
 import config
 from config import randSleep
+
+
 def startTimerInThread():
     from controls import timer
     def run_timer():
@@ -12,8 +14,10 @@ def startTimerInThread():
         asyncio.set_event_loop(loop)
         loop.run_until_complete(timer())
         loop.close()
+
     t = Thread(target=run_timer, daemon=True)
     t.start()
+
 
 def startInputLoop():
     import controls
@@ -30,11 +34,12 @@ def startInputLoop():
     thread.start()
     return thread
 
+
 def mainGameplayLoop():  # active while you are not in a saferoom and alive
     from room import generateRoom
     from entity import entitySpawner
     config.timeRemaining = config.SFTime
-    config.roomsRemaining = 15 + min(40, config.saferoom * 3)  # set roomsRemaining to a maximum of 55
+    config.roomsRemaining = 15 + min(40, config.saferoom * 10)  # set roomsRemaining to a maximum of 55
     config.gameOn = True  # sets gameOn to true
     t = Thread(target=startInputLoop, daemon=False)  # input async loop in a thread
     t.start()
@@ -42,11 +47,14 @@ def mainGameplayLoop():  # active while you are not in a saferoom and alive
     config.nextThreeRooms.append(config.currentRoomType)
     config.nextThreeRooms.extend(generateRoom(2))
     print(f"current room type is {config.currentRoomType}")
-    print(f"the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
+    print(
+        f"the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
     startTimerInThread()  # starts timer
+    print(config.gameOn)
     while config.gameOn:  # loop for entity spawning
-        time.sleep(random.randint(1,10))
-        entitySpawner()
+        time.sleep(random.randint(10, 100))
+        entitySpawner()  # spawns entities, uncomment for demo
+
 
 def main():
     from inventory import flashlight, lamp

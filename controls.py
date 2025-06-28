@@ -9,7 +9,7 @@ import config
 async def timer():
     from entity import goatmanSpawn
     print(
-        f"the timer has started, you have 40 seconds to get to the saferoom and {config.roomsRemaining} rooms. good luck.")
+        f"the timer has started, you have 60 seconds to get to the saferoom and {config.roomsRemaining} rooms. good luck.")
     config.timeRemaining = config.SFTime
     while config.timeRemaining > 0 and config.gameOn:
         await asyncio.sleep(1)
@@ -28,7 +28,7 @@ def crouch():  # manages crouching
 def forward():  # manages moving forward
     from room import longRoom, longSafeRoom, longHidingSpot, normalSafeRoom, nextRoom
     config.direction = 0
-    if config.roomsRemaining >=1:
+    if config.roomsRemaining >= 1:
         if config.currentRoomType in [longRoom, longSafeRoom, longHidingSpot]:
             if not config.currentRoomType is longSafeRoom:  # for non-saferoom rooms, put longRoomTicked to True or advance
                 # print("not longSafeRoom")
@@ -53,7 +53,6 @@ def forward():  # manages moving forward
             nextRoom()
     else:
         saferoomEnter()
-
 
 
 def backwards():
@@ -81,30 +80,31 @@ def right():  # manages moving right, sets direction and location
 def moveForward():  # manages moving forward without looking
     from room import longRoom, longSafeRoom, longHidingSpot, normalSafeRoom
     from room import nextRoom
-    if config.currentRoomType in [longRoom, longSafeRoom, longHidingSpot]:
-        if not config.currentRoomType == longSafeRoom:  # for non-saferoom rooms, put longRoomTicked to True or advance
-            # print("not longSafeRoom")
-            if not config.longRoomTicked:  # sets longRoomTicked to True, else advances
-                config.longRoomTicked = True
-                # print("longRoomTicked = True")
-            elif config.longRoomTicked:  # advances to next room
-                config.longRoomTicked = False
-                # print("advance long room")
-                nextRoom()
-        else:  # if longSafeRoom and longRoomTicked is True, enters saferoom, otherwise sets longRoomTicked to True
-            if config.longRoomTicked:  # enter saferoom
-                config.longRoomTicked = False
-                # print("enter saferoom")
-                saferoomEnter()
-            else:
-                # print("longRoomTicked = True for saferoom")
-                config.longRoomTicked = True
-    elif config.currentRoomType == normalSafeRoom:
-        # print("enter saferoom normal room")
-        saferoomEnter()
+    if config.roomsRemaining >= 1:
+        if config.currentRoomType in [longRoom, longSafeRoom, longHidingSpot]:
+            if not config.currentRoomType is longSafeRoom:  # for non-saferoom rooms, put longRoomTicked to True or advance
+                # print("not longSafeRoom")
+                if not config.longRoomTicked:  # sets longRoomTicked to True, else advances
+                    config.longRoomTicked = True
+                    # print("longRoomTicked = True")
+                elif config.longRoomTicked:  # advances to next room
+                    config.longRoomTicked = False
+                    # print("advance long room")
+                    nextRoom()
+            else:  # if longSafeRoom and longRoomTicked is True, enters saferoom, otherwise sets longRoomTicked to True
+                if config.longRoomTicked:  # enter saferoom
+                    config.longRoomTicked = False
+                    saferoomEnter()
+                else:
+                    # print("longRoomTicked = True for saferoom")
+                    config.longRoomTicked = True
+        elif config.currentRoomType is normalSafeRoom:
+            saferoomEnter()
+        else:
+            # print("not long room")
+            nextRoom()
     else:
-        # print("not long room")
-        nextRoom()
+        saferoomEnter()
 
 
 def moveBackwards():
@@ -142,32 +142,27 @@ directionDictionary = {
 
 
 async def inputLoop():
-    # start off the listener
+    # start the listener
     listenerTask = asyncio.create_task(inputListener())
-    # outer loop to allow restarting whenever gameOn flips back to True
     while True:
-        # as long as gameOn is True, read user input
-        while config.gameOn:
-            userInput = await asyncio.to_thread(input, "")
-            await config.setMainInput(userInput)
-        # once gameOn is False, pause before re-checking
-        await asyncio.sleep(0.1)
+        # read user input forever
+        userInput = await asyncio.to_thread(input, "")
+        await config.setMainInput(userInput)
+
 
 async def inputListener():  # listens for input
     # print("movement inputListener activated")
     import entity
     from config import mainInputCondition
     while True:  # outer loop to ensure restart
-        while config.gameOn and not entity.sorrowSpawned:
-            print("movement inputlistener goodCheck")
-            async with mainInputCondition:
-                print("movement inputListener async with mainInput")
-                print(mainInputCondition.locked())
-                await mainInputCondition.wait()  # wait for input to change
-                print("mainInputCondition awaited")
-                await inputHandler()
-                print("inputHandler awaited")
-        await asyncio.sleep(0.1)
+        # print("movement inputlistener goodCheck")
+        async with mainInputCondition:
+            # print("movement inputListener async with mainInput")
+            # print(mainInputCondition.locked())
+            await mainInputCondition.wait()  # wait for input to change
+            # print("mainInputCondition awaited")
+            await inputHandler()
+            # print("inputHandler awaited")
 
 
 # noinspection PyUnresolvedReferences
@@ -212,20 +207,22 @@ async def inputHandler():  # handles game input and redirects to the adequate fu
     elif config.mainInput == "i":  # open/close inventory
         config.rueFlashed = False
         openCloseInventory()
-    elif config.mainInput in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:        # select inventory slot
+    elif config.mainInput in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]:  # select inventory slot
         config.rueFlashed = False
         print(config.inventoryOpen)
         if config.inventoryOpen:  # if inventory is open
             index = int(config.mainInput) - 1  # convert to int in order to prevent typeError
-            config.currentItem = config.inventory[index]  # TODO: maybe finished
+            config.currentItem = config.inventory[index]
             print(f"equipped {config.currentItem}")
     elif config.mainInput == "f":  # use selected inventory item
         config.rueFlashed = False
-        if getattr(config.currentItem, "useEffect", False) and config.inventoryOpen:  # run the useEffect if the currentItem has it
+        if getattr(config.currentItem, "useEffect",
+                   False) and config.inventoryOpen:  # run the useEffect if the currentItem has it
             config.currentItem.use()
     elif config.mainInput == "p":  # pick up item in room
         config.rueFlashed = False
-        if getattr(config.currentRoomType, "hidingSpot", False) and config.inventoryOpen:  # if currentRoomType is not a hiding spot
+        if getattr(config.currentRoomType, "hidingSpot",
+                   False) and config.inventoryOpen:  # if currentRoomType is not a hiding spot
             print("there's nothing here to pick up")
         else:  # print
             if config.holywaterPicked:
@@ -237,7 +234,8 @@ async def inputHandler():  # handles game input and redirects to the adequate fu
         config.rueFlashed = False
         if currentItem == lamp:
             print(f"you have {config.roomsRemaining} rooms remaining until saferoom {config.saferoom + 1},")
-            print(f"you are facing {directionDictionary[config.direction]}, current room type is {config.currentRoomType}")
+            print(
+                f"you are facing {directionDictionary[config.direction]}, current room type is {config.currentRoomType}")
             print(
                 f"you are in the {locationDictionary[config.location]} of the room and have {config.timeRemaining} time remaining")
             if config.roomsRemaining >= 3:
@@ -246,7 +244,7 @@ async def inputHandler():  # handles game input and redirects to the adequate fu
             elif config.roomsRemaining == 2:
                 print(f"the next rooms are: {config.nextThreeRooms[0]} and {config.nextThreeRooms[1]}")
             else:
-                print(f"you have one more room, {config.nextThreeRooms[0]}")
+                print(f"you have one more room, the {config.nextThreeRooms[0]}")
         print()
     elif config.mainInput == 0:
         pass
@@ -260,7 +258,7 @@ def saferoomEnter():
     config.timeRemaining = config.SFTime
     config.gameOn = False
     config.currentRoom = 0
-    config.roomsRemaining = 15 + min(40, config.saferoom * 3) # max rooms is 55
+    config.roomsRemaining = 30 + min(40, config.saferoom * 3)  # max rooms is 55
     config.saferoom += 1  # increment saferoom
     config.location = 0  # reset location
     config.direction = 0  # reset direction
@@ -270,6 +268,7 @@ def saferoomEnter():
           f"you'll move on in 5 seconds")
     time.sleep(1)
     mainGameplayLoop()  # restarts main gameplay loop
+    print(config.gameOn)
 
 
 timerTask = None  # stores the timer task
