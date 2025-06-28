@@ -27,6 +27,7 @@ randomlyGeneratedRooms = [normalRoom, longRoom]  # stores the rooms that can be 
 
 
 def nextRoom():
+    print(f"rooms remaining: {config.roomsRemaining}")
     config.longRoomTicked = False
     from inventory import lamp
     config.holywaterPicked = False
@@ -97,8 +98,8 @@ def roomGenerator():  # generates the next three rooms
         print(
             f"current room is {config.currentRoomType} and the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
     elif config.roomsRemaining == 2:
-        print(f"the next rooms are: {config.nextThreeRooms[0]} and the saferoom")
+        print(f"the next rooms are: {config.nextThreeRooms[0]} and {config.nextThreeRooms[1]}")
     else:
-        print(f"you have one more room, the saferoom")
+        print(f"you have one more room, {config.nextThreeRooms[0]}")
 
 # meow

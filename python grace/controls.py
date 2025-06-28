@@ -1,7 +1,7 @@
 # stores movement-related stuff, it's not an actual class tho no reason for me to make one lol
 # good thing this class contains only functions omc i hate circular imports i want to kill myself
 import asyncio
-import threading
+import time
 
 import config
 
@@ -11,11 +11,11 @@ async def timer():
     print(
         f"the timer has started, you have 40 seconds to get to the saferoom and {config.roomsRemaining} rooms. good luck.")
     config.timeRemaining = config.SFTime
-    while config.timeRemaining > 0:
+    while config.timeRemaining > 0 and config.gameOn:
         await asyncio.sleep(1)
         config.timeRemaining -= 1
-    goatmanSpawn()
-
+    if config.gameOn:
+        goatmanSpawn()
 
 
 def crouch():  # manages crouching
@@ -26,33 +26,34 @@ def crouch():  # manages crouching
 
 
 def forward():  # manages moving forward
-    from room import longRoom, longSafeRoom, longHidingSpot, normalSafeRoom
-    from room import nextRoom
+    from room import longRoom, longSafeRoom, longHidingSpot, normalSafeRoom, nextRoom
     config.direction = 0
-    if config.currentRoomType in [longRoom, longSafeRoom, longHidingSpot]:
-        if not config.currentRoomType == longSafeRoom:  # for non-saferoom rooms, put longRoomTicked to True or advance
-            # print("not longSafeRoom")
-            if not config.longRoomTicked:  # sets longRoomTicked to True, else advances
-                config.longRoomTicked = True
-                # print("longRoomTicked = True")
-            elif config.longRoomTicked:  # advances to next room
-                config.longRoomTicked = False
-                # print("advance long room")
-                nextRoom()
-        else:  # if longSafeRoom and longRoomTicked is True, enters saferoom, otherwise sets longRoomTicked to True
-            if config.longRoomTicked:  # enter saferoom
-                config.longRoomTicked = False
-                # print("enter saferoom")
-                saferoomEnter()
-            else:
-                # print("longRoomTicked = True for saferoom")
-                config.longRoomTicked = True
-    elif config.currentRoomType == normalSafeRoom:
-        # print("enter saferoom normal room")
-        saferoomEnter()
+    if config.roomsRemaining >=1:
+        if config.currentRoomType in [longRoom, longSafeRoom, longHidingSpot]:
+            if not config.currentRoomType is longSafeRoom:  # for non-saferoom rooms, put longRoomTicked to True or advance
+                # print("not longSafeRoom")
+                if not config.longRoomTicked:  # sets longRoomTicked to True, else advances
+                    config.longRoomTicked = True
+                    # print("longRoomTicked = True")
+                elif config.longRoomTicked:  # advances to next room
+                    config.longRoomTicked = False
+                    # print("advance long room")
+                    nextRoom()
+            else:  # if longSafeRoom and longRoomTicked is True, enters saferoom, otherwise sets longRoomTicked to True
+                if config.longRoomTicked:  # enter saferoom
+                    config.longRoomTicked = False
+                    saferoomEnter()
+                else:
+                    # print("longRoomTicked = True for saferoom")
+                    config.longRoomTicked = True
+        elif config.currentRoomType is normalSafeRoom:
+            saferoomEnter()
+        else:
+            # print("not long room")
+            nextRoom()
     else:
-        # print("not long room")
-        nextRoom()
+        saferoomEnter()
+
 
 
 def backwards():
@@ -78,24 +79,31 @@ def right():  # manages moving right, sets direction and location
 
 
 def moveForward():  # manages moving forward without looking
-    from room import nextRoom
     from room import longRoom, longSafeRoom, longHidingSpot, normalSafeRoom
+    from room import nextRoom
     if config.currentRoomType in [longRoom, longSafeRoom, longHidingSpot]:
-        if not longSafeRoom:  # for non-saferoom rooms, put longRoomTicked to True or advance
+        if not config.currentRoomType == longSafeRoom:  # for non-saferoom rooms, put longRoomTicked to True or advance
+            # print("not longSafeRoom")
             if not config.longRoomTicked:  # sets longRoomTicked to True, else advances
                 config.longRoomTicked = True
-            else:  # advances to next room
+                # print("longRoomTicked = True")
+            elif config.longRoomTicked:  # advances to next room
                 config.longRoomTicked = False
+                # print("advance long room")
                 nextRoom()
         else:  # if longSafeRoom and longRoomTicked is True, enters saferoom, otherwise sets longRoomTicked to True
             if config.longRoomTicked:  # enter saferoom
                 config.longRoomTicked = False
+                # print("enter saferoom")
                 saferoomEnter()
             else:
+                # print("longRoomTicked = True for saferoom")
                 config.longRoomTicked = True
     elif config.currentRoomType == normalSafeRoom:
+        # print("enter saferoom normal room")
         saferoomEnter()
     else:
+        # print("not long room")
         nextRoom()
 
 
@@ -134,30 +142,32 @@ directionDictionary = {
 
 
 async def inputLoop():
+    # start off the listener
     listenerTask = asyncio.create_task(inputListener())
-    # print("listenerTask created")
-    while config.gameOn:
-        # print("entered while inputLOop")
-        userInput = await asyncio.to_thread(input, "")
-        # print("set user input")
-        await config.setMainInput(userInput)
-        # print("awaited config")
-    await listenerTask
-    # print("awaited listenerTask")
+    # outer loop to allow restarting whenever gameOn flips back to True
+    while True:
+        # as long as gameOn is True, read user input
+        while config.gameOn:
+            userInput = await asyncio.to_thread(input, "")
+            await config.setMainInput(userInput)
+        # once gameOn is False, pause before re-checking
+        await asyncio.sleep(0.1)
 
 async def inputListener():  # listens for input
     # print("movement inputListener activated")
-    from config import gameOn, mainInputCondition
-    from entity import sorrowSpawned
-    while gameOn and not sorrowSpawned:
-        # print("movement inputlistener goodCheck")
-        async with mainInputCondition:
-            # print("movement inputListener async with mainInput")
-            # print(mainInputCondition.locked())
-            await mainInputCondition.wait()  # wait for input to change
-            # print("mainInputCondition awaited")
-            await inputHandler()
-            # print("inputHandler awaited")
+    import entity
+    from config import mainInputCondition
+    while True:  # outer loop to ensure restart
+        while config.gameOn and not entity.sorrowSpawned:
+            print("movement inputlistener goodCheck")
+            async with mainInputCondition:
+                print("movement inputListener async with mainInput")
+                print(mainInputCondition.locked())
+                await mainInputCondition.wait()  # wait for input to change
+                print("mainInputCondition awaited")
+                await inputHandler()
+                print("inputHandler awaited")
+        await asyncio.sleep(0.1)
 
 
 # noinspection PyUnresolvedReferences
@@ -232,11 +242,11 @@ async def inputHandler():  # handles game input and redirects to the adequate fu
                 f"you are in the {locationDictionary[config.location]} of the room and have {config.timeRemaining} time remaining")
             if config.roomsRemaining >= 3:
                 print(
-                    f"the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
+                    f"current room type is -{config.currentRoomType}- and the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
             elif config.roomsRemaining == 2:
-                print(f"the next rooms are: {config.nextThreeRooms[0]} and the saferoom")
+                print(f"the next rooms are: {config.nextThreeRooms[0]} and {config.nextThreeRooms[1]}")
             else:
-                print(f"you have one more room, the saferoom")
+                print(f"you have one more room, {config.nextThreeRooms[0]}")
         print()
     elif config.mainInput == 0:
         pass
@@ -248,28 +258,20 @@ async def inputHandler():  # handles game input and redirects to the adequate fu
 def saferoomEnter():
     from main import mainGameplayLoop
     config.timeRemaining = config.SFTime
-    config.inSaferoom = True
+    config.gameOn = False
     config.currentRoom = 0
-    config.roomsRemaining = min(3 * config.saferoom, 25) + 20  # max rooms is 55
+    config.roomsRemaining = 15 + min(40, config.saferoom * 3) # max rooms is 55
     config.saferoom += 1  # increment saferoom
     config.location = 0  # reset location
     config.direction = 0  # reset direction
     config.currentRoomType = 0  # reset current room type
-    resetTimer()  # reset timer
-    print(f"you have entered saferoom number {config.saferoom}, you are at {config.roomsPassed} rooms passed, press "
-          f"enter to move on")
-    config.mainInput = input("")
+    config.timeRemaining = 60  # reset timer
+    print(f"you have entered saferoom number {config.saferoom}, you are at {config.roomsPassed} rooms passed,  "
+          f"you'll move on in 5 seconds")
+    time.sleep(1)
     mainGameplayLoop()  # restarts main gameplay loop
 
 
 timerTask = None  # stores the timer task
-
-
-def resetTimer():
-    from main import startTimerInThread
-    global timerTask
-    if timerTask is not None and timerTask.is_alive():
-        # start new thread
-        timerTask = threading.Thread(target=startTimerInThread, daemon=True)
 
 # meow

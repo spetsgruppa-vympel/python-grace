@@ -21,14 +21,14 @@ class mainEntity:  # define main entity class to store entities
 
 
 dozer = mainEntity(True, 3, 3, False, 0, 0)  # kills if not crouching
-sorrow = mainEntity(True, 3, 2, False, 0, 0)  # kills if you move
+sorrow = mainEntity(True, 3, 3, False, 0, 0)  # kills if you move
 rue = mainEntity(True, 0, 5, True, 1, -1)  # kills if you don't flash it
-heed = mainEntity(False, 3, 2, False, 0, 1)  # tags if you don't look at it
-slight = mainEntity(False, 1, 2, False, 0, 1)  # tags if you look at it
+heed = mainEntity(False, 3, 3, False, 0, 1)  # tags if you don't look at it
+slight = mainEntity(False, 1, 3, False, 0, 1)  # tags if you look at it
 slugfish = mainEntity(True, 2, 2, False, 0, -1)  # kills if you are in its way
 goatman = mainEntity(True, 0, 4, True, 99999, -1)  # it's over nine thousand
 carnation = mainEntity(True, 0, 5, False, 0, -1)  # kills if not in hiding spot
-entityTypes = [dozer, sorrow, heed, slight, slugfish, goatman, carnation]
+entityTypes = [dozer, sorrow, heed, slight, slugfish, carnation]
 
 dozerSpawned = False  # stores whether the entity dozer has spawned (duplicate spawns are not allowed)
 sorrowSpawned = False  # stores whether the entity sorrow has spawned (duplicate spawns are not allowed)
@@ -198,7 +198,7 @@ def carnationSpawn():  # carnation spawn function
         carnationSpawned = True
         print("carnation has spawned, run forwards, you will find a hiding room")
         time.sleep(carnation.checkTime)
-        if getattr(config.currentRoomType, "hidingSpot", False) and config.gameOn:
+        if not getattr(config.currentRoomType, "hidingSpot", False) and config.gameOn:
             config.playerDead("carnation")
         print("carnation has despawned")
         carnationSpawned = False
@@ -207,13 +207,13 @@ def carnationSpawn():  # carnation spawn function
 
 
 def entitySpawner():  # main entity spawner function
-    global slight, heed, entityTypes
+    print("entitySpawner called")
     def entityOperator():  # decides the entity to be spawned
         candidateEntity = random.choice(entityTypes)  # randomly chooses an entity
-        if candidateEntity.mainEntity.spawnsFrom >= config.saferoom:  # checks if the entity is allowed to spawn
+        if candidateEntity.spawnsFrom >= config.saferoom:  # checks if the entity is allowed to spawn
             return candidateEntity  # yields the entity
         else:
-            entityOperator()  # reruns if spawn is not allowed
+            return entityOperator()  # reruns if spawn is not allowed
     spawningEntity = entityOperator()
     if spawningEntity.spawnsWhere <= 0:  # if the spawning entity spawns in the back or current room, >
         spawnDictionary.get(spawningEntity, lambda: None)()  # > fetch the spawn function from the entity dictionary
