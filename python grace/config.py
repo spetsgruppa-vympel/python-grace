@@ -14,7 +14,7 @@ crouching = False  # whether the player is crouching
 # room-related variables
 direction = 0  # stores the direction the player is looking based on last movement: 0/12 = forward, 3 = right, 6 = back, 9 = left
 location = 0  # stores whether the player is located on the left (-1), middle (0) or right (1)
-saferoom = 0  # number of saferooms
+saferoom = 0  # number of saferooms passed
 SFTime = 60  # time in seconds the player has after leaving the saferoom to reach the next saferoom before goatman spawns
 timeRemaining = 0  # the remaining time of the player
 currentRoom = 0  # the room you are between the saferooms
@@ -70,16 +70,17 @@ def randSleep(a, b):  # randomized sleep function
     if not devMode:
         time.sleep(float(random.randint(a, b) / 100))
 
+def slowPrint(text, delay=0.2):
+    global gameOn
+    gameOn = False
+    for char in text:
+        print(char, end='', flush=True)
+        time.sleep(delay)
+    print()
 
 def playerDead(deathBy):  # manages the player's death and ends the game
     global gameOn
     gameOn = False
-    print(f"you died to {deathBy}")
-    print(f"you can always try again,"
-          f"\ni am here to help you,"
-          f"\ni know it's really hard but you will succeed eventually,"
-          f"\nand what awaits you when you do is great,"
-          f"\nbut i won't force you to do anything."
-          f"\ngoodbye for now, i will always be here for you"
-          f"\nwhen you need and want me.")
+    slowPrint(f"you died to {deathBy}. \nyou can always try again,\ni am here to help you,\ni know it's really hard but you will succeed eventually,\nand what awaits you when you do is great,\nbut i won't force you to do anything.\ngoodbye for now, i will always be here for you\nwhen you need and want me.")
     exit("dead")
+

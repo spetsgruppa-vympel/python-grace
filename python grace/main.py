@@ -1,26 +1,42 @@
 # i hate circular imports
 import asyncio
+import random
+import time
 from threading import Thread
 import config
 from config import randSleep
-
 def startTimerInThread():
     from controls import timer
-    asyncio.run(timer())
+    def run_timer():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(timer())
+        loop.close()
+    t = Thread(target=run_timer, daemon=True)
+    t.start()
 
-def start_input_loop():
-    from controls import inputLoop
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(inputLoop())
-    loop.close()
+def startInputLoop():
+    import controls
+    async def Main():
+        await controls.inputLoop()
+
+    def RunLoop():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(Main())
+        loop.close()
+
+    thread = Thread(target=RunLoop)
+    thread.start()
+    return thread
 
 def mainGameplayLoop():  # active while you are not in a saferoom and alive
     from room import generateRoom
+    from entity import entitySpawner
     config.timeRemaining = config.SFTime
     config.roomsRemaining = 15 + min(40, config.saferoom * 3)  # set roomsRemaining to a maximum of 55
     config.gameOn = True  # sets gameOn to true
-    t = Thread(target=start_input_loop, daemon=True)
+    t = Thread(target=startInputLoop, daemon=False)  # input async loop in a thread
     t.start()
     config.currentRoomType = list(generateRoom(1))[0]
     config.nextThreeRooms.append(config.currentRoomType)
@@ -29,8 +45,8 @@ def mainGameplayLoop():  # active while you are not in a saferoom and alive
     print(f"the next rooms are: {config.nextThreeRooms[0].roomIdentifier}, {config.nextThreeRooms[1].roomIdentifier} and {config.nextThreeRooms[2].roomIdentifier}")
     startTimerInThread()  # starts timer
     while config.gameOn:  # loop for entity spawning
-
-        pass  # TODO: entity spawn
+        time.sleep(random.randint(1,10))
+        entitySpawner()
 
 def main():
     from inventory import flashlight, lamp
@@ -89,17 +105,9 @@ def main():
     # initial game setup
     config.inventory.append(lamp)  # add lamp and flashlight to the starting player inventory
     config.inventory.append(flashlight)
-    config.currentItem = lamp
+    config.currentItem = lamp  # set current item to lamp
     mainGameplayLoop()  # starts main gameplay loop
-
 
 
 if __name__ == "__main__":
     main()
-
-
-# TODO LIST: implement entity spawning system: NEEDS SPAWN CONDITION
-# TODO LIST: playtest
-# TODO LIST: kill myself: in preparation
-# TODO LIST: if all entities are spawned, entitySpawner goes on forever
-# meow
